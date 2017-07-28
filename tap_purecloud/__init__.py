@@ -551,13 +551,11 @@ def do_sync(args):
     sync_conversations(config)
     sync_user_details(config)
 
-
-
     new_state = {
         'start_date': datetime.date.today().strftime('%Y-%m-%d')
     }
 
-    # singer.write_state(state)
+    singer.write_state(state)
 
 
 def main():
