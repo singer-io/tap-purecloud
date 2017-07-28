@@ -555,7 +555,7 @@ def do_sync(args):
         'start_date': datetime.date.today().strftime('%Y-%m-%d')
     }
 
-    singer.write_state(state)
+    singer.write_state(new_state)
 
 
 def main():
