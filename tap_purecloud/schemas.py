@@ -142,61 +142,132 @@ conversation = {
 }
 
 
-user_details_primary_presence = {
+user_state = {
     'type': 'object',
     'properties': {
+        'id': {
+            'type': 'string',
+            'description': 'id for the user state',
+        },
+        'user_id': {
+            'type': 'string',
+            'description': 'id for the user',
+        },
         'start_time': {
             'type': ['string', 'null'],
             'format': 'date-time',
-            'description': 'start timestamp for presence indicator',
+            'description': 'start time',
         },
         'end_time': {
             'type': ['string', 'null'],
             'format': 'date-time',
-            'description': 'end timestamp for presence indicator',
+            'description': 'end time',
         },
-        'system_presence': {
+        'state': {
             'type': 'string',
-            'description': 'presence state'
+            'description': 'state'
+        },
+        'state_id': {
+            'type': ['string', 'null'],
+            'description': 'state id'
+        },
+        'type': {
+            'type': 'string',
+            'description': 'message type'
         }
     }
 }
 
-user_details_routing_status = {
+management_unit = {
+    'type': 'object',
     'properties': {
-        'start_time': {
-            'type': ['string', 'null'],
-            'format': 'date-time',
-            'description': 'start time for the routing status',
-        },
-        'end_time': {
-            'type': ['string', 'null'],
-            'format': 'date-time',
-            'description': 'end time for the routing status',
-        },
-        'routing_status': {
+        'id': {
             'type': 'string',
-            'description': 'routing state'
+            'description': 'id for the management unit',
+        },
+        'name': {
+            'type': 'string',
+            'description': 'name for the management unit',
         }
     }
 }
 
+activity_code = {
+    'type': 'object',
+    'properties': {
+        'id': {
+            'type': 'string',
+            'description': 'id for the activity code',
+        },
+        'management_unit_id': {
+            'type': 'string',
+            'description': 'id for the management unit for this activity code',
+        },
+        'name': {
+            'type': 'string',
+            'description': 'name for this activity code',
+        },
+        'category': {
+            'type': 'string',
+            'description': 'category for this activity code',
+        }
+    }
+}
 
-user_details = {
+management_unit_users = {
+    'type': 'object',
+    'properties': {
+        'management_unit_id': {
+            'type': 'string',
+            'description': 'id for the management unit for this user',
+        },
+        'user_id': {
+            'type': 'string',
+            'description': 'id for the user',
+        }
+    }
+}
+
+user_schedule_shifts_activities = {
+    'type': 'object',
+    'properties': {
+        'activity_code_id': {
+            'type': 'string',
+            'description': 'id for the activity_code',
+        }
+    }
+}
+
+user_schedule_shifts = {
+    'type': 'object',
+    'properties': {
+        'start_date': {
+            'type': ['string', 'null'],
+            'format': 'date-time',
+            'description': 'date for the shift',
+        },
+        'activities': {
+            'type': ['array', 'null'],
+            'items': user_schedule_shifts_activities
+        }
+    }
+}
+
+user_schedule = {
     'type': 'object',
     'properties': {
         'user_id': {
             'type': 'string',
             'description': 'id for the user',
         },
-        'primary_presence': {
-            'type': ['array', 'null'],
-            'items': user_details_primary_presence
+        'start_date': {
+            'type': ['string', 'null'],
+            'format': 'date-time',
+            'description': 'date for the sync',
         },
-        'routing_status': {
+        'shifts': {
             'type': ['array', 'null'],
-            'items': user_details_routing_status
+            'items': user_schedule_shifts
         }
     }
 }
-

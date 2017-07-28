@@ -15,7 +15,8 @@ setup(name='tap-purecloud',
           'backoff==1.3.2',
           'requests==2.12.4',
           'python-dateutil==2.6.0',
-          'PureCloudPlatformApiSdk==0.45.1.101'
+          'PureCloudPlatformApiSdk==0.45.1.101',
+          'PureCloudPlatformClientV2'
       ],
       entry_points='''
           [console_scripts]
