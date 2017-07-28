@@ -299,7 +299,7 @@ def sync_management_units(config):
     gen_units = fetch_all_records(getter, 'entities', body)
 
     # first, write out the units
-    mgmt_units = stream_results(gen_units, lambda x: x, 'mangagement_unit', schemas.management_unit, ['id'], True)
+    mgmt_units = stream_results(gen_units, lambda x: x, 'management_unit', schemas.management_unit, ['id'], True)
 
     for i, unit in enumerate(mgmt_units):
         first_page = (i == 0)
