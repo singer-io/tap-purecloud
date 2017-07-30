@@ -117,7 +117,7 @@ def should_continue(api_response, body, entity_name):
 
     if records is None or len(records) == 0:
         return False
-    elif hasattr(api_response, 'page_count') and body.page_number < api_response.page_count:
+    elif hasattr(api_response, 'page_count') and body.page_number >= api_response.page_count:
         return False
     else:
         return True
