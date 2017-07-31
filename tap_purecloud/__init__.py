@@ -218,6 +218,14 @@ def sync_locations(config):
     stream_results(gen_locations, handle_object, 'location', schemas.location, ['id'], True)
 
 
+def sync_presence_definitions(config):
+    logger.info("Fetching presence definitions")
+    api_instance = PureCloudPlatformApiSdk.PresenceApi()
+    body = FakeBody()
+    gen_presences = fetch_all_records(api_instance.get_presencedefinitions, 'entities', body)
+    stream_results(gen_presences, handle_object, 'presence', schemas.presence, ['id'], True)
+
+
 def get_wfm_units_for_broken_sdk(api_instance):
     def wrap(*args, **kwargs):
         _ = api_instance.get_managementunits(*args, **kwargs)
@@ -546,10 +554,11 @@ def do_sync(args):
     sync_users(config)
     sync_groups(config)
     sync_locations(config)
+    sync_presence_definitions(config)
 
     sync_management_units(config)
     sync_conversations(config)
-    sync_user_details(config)
+    #sync_user_details(config)
 
     new_state = {
         'start_date': datetime.date.today().strftime('%Y-%m-%d')

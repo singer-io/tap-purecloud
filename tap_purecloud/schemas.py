@@ -271,3 +271,34 @@ user_schedule = {
         }
     }
 }
+
+presence_label = {
+    'type': 'object',
+    'properties': {
+        'en_US': {
+            'type': 'string',
+            'description': 'English presence label'
+        }
+    }
+}
+
+presence = {
+    'type': 'object',
+    'properties': {
+        'id': {
+            'type': 'string',
+            'description': 'presence id',
+        },
+        'language_labels': presence_label,
+        'created_date': {
+            'type': ['string', 'null'],
+            'format': 'date-time',
+            'description': 'presence creation date',
+        },
+        'modified_date': {
+            'type': ['string', 'null'],
+            'format': 'date-time',
+            'description': 'presence modification date',
+        }
+    }
+}
