@@ -302,3 +302,59 @@ presence = {
         }
     }
 }
+
+queue = {
+    'type': 'object',
+    'properties': {
+        'id': {
+            'type': 'string',
+            'name': 'queue id',
+        },
+        'name': {
+            'type': 'string',
+            'name': 'queue name',
+        },
+        'member_count': {
+            'type': 'number',
+            'name': 'queue member count',
+        },
+        'created_date': {
+            'type': ['string', 'null'],
+            'format': 'date-time',
+            'description': 'queue creation date',
+        },
+        'modified_date': {
+            'type': ['string', 'null'],
+            'format': 'date-time',
+            'description': 'queue modification date',
+        }
+    }
+}
+
+queue_membership = {
+    'type': 'object',
+    'properties': {
+        'id': {
+            'type': 'string',
+            'name': 'id for the user membership in this queue',
+        },
+        'queue_id': {
+            'type': 'string',
+            'name': 'id for the queue',
+        },
+        'user_id': {
+            'type': 'string',
+            'name': 'user id for this queue',
+        }
+    }
+}
+
+queue_wrapup = {
+    'type': 'object',
+    'properties': {
+        'id': {
+            'type': 'string',
+            'name': 'id for the wrapup code in this queue',
+        },
+    }
+}

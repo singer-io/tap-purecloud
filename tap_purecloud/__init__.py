@@ -226,6 +226,28 @@ def sync_presence_definitions(config):
     stream_results(gen_presences, handle_object, 'presence', schemas.presence, ['id'], True)
 
 
+def sync_queues(config):
+    logger.info("Fetching queues")
+    api_instance = PureCloudPlatformApiSdk.RoutingApi()
+    body = FakeBody()
+    gen_queues = fetch_all_records(api_instance.get_queues, 'entities', body)
+
+    queues = stream_results(gen_queues, handle_object, 'queues', schemas.queue, ['id'], True)
+
+    for i, queue in enumerate(queues):
+        first_page = (i == 0)
+        queue_id = queue['id']
+
+        getter = lambda *args, **kwargs: api_instance.get_queues_queue_id_users(queue_id)
+        gen_queue_membership = fetch_all_records(getter, 'entities', FakeBody())
+        stream_results(gen_queue_membership, handle_queue_user_membership(queue_id), 'queue_membership', schemas.queue_membership, ['id'], first_page)
+
+        getter = lambda *args, **kwargs: api_instance.get_queues_queue_id_wrapupcodes(queue_id)
+        gen_queue_wrapup_codes = fetch_all_records(getter, 'entities', FakeBody())
+        stream_results(gen_queue_wrapup_codes, handle_queue_wraup_code(queue_id), 'queue_wraup_code', schemas.queue_wrapup, ['id'], first_page)
+
+
+
 def get_wfm_units_for_broken_sdk(api_instance):
     def wrap(*args, **kwargs):
         _ = api_instance.get_managementunits(*args, **kwargs)
@@ -248,6 +270,25 @@ def handle_mgmt_users(unit_id):
             'user_id': user.id,
             'management_unit_id': unit_id,
         }
+    return wrap
+
+def handle_queue_user_membership(queue_id):
+    def wrap(queue_membership):
+        membership_info = handle_object(queue_membership)
+        user = membership_info.pop('user')
+
+        membership_info['user_id'] = user['id']
+        membership_info['queue_id'] = queue_id
+
+        return membership_info
+    return wrap
+
+def handle_queue_wraup_code(queue_id):
+    def wrap(queue_wrapup_code):
+        wrapup_code = handle_object(queue_wrapup_code)
+        wrapup_code['queue_id'] = queue_id
+
+        return wrapup_code
     return wrap
 
 def handle_schedule(start_date):
@@ -555,10 +596,11 @@ def do_sync(args):
     sync_groups(config)
     sync_locations(config)
     sync_presence_definitions(config)
+    sync_queues(config)
 
     sync_management_units(config)
     sync_conversations(config)
-    #sync_user_details(config)
+    sync_user_details(config)
 
     new_state = {
         'start_date': datetime.date.today().strftime('%Y-%m-%d')
