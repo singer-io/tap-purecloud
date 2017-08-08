@@ -244,7 +244,7 @@ def sync_queues(config):
 
         getter = lambda *args, **kwargs: api_instance.get_queues_queue_id_wrapupcodes(queue_id)
         gen_queue_wrapup_codes = fetch_all_records(getter, 'entities', FakeBody())
-        stream_results(gen_queue_wrapup_codes, handle_queue_wraup_code(queue_id), 'queue_wraup_code', schemas.queue_wrapup, ['id'], first_page)
+        stream_results(gen_queue_wrapup_codes, handle_queue_wrapup_code(queue_id), 'queue_wrapup_code', schemas.queue_wrapup, ['id'], first_page)
 
 
 
@@ -283,7 +283,7 @@ def handle_queue_user_membership(queue_id):
         return membership_info
     return wrap
 
-def handle_queue_wraup_code(queue_id):
+def handle_queue_wrapup_code(queue_id):
     def wrap(queue_wrapup_code):
         wrapup_code = handle_object(queue_wrapup_code)
         wrapup_code['queue_id'] = queue_id
