@@ -10,6 +10,7 @@ import time
 import json
 import backoff
 import hashlib
+import collections
 
 import PureCloudPlatformApiSdk
 import PureCloudPlatformClientV2
@@ -344,40 +345,68 @@ def sync_user_schedules(config, unit_id, user_ids, first_page):
         first_page = False
 
 
-def sync_wfm_historical_adherence(config, unit_id, users):
+def sync_wfm_historical_adherence(config, unit_id, users, body):
     # The ol' Python pass-by-reference
     result_reference = {}
     wfm_notifcation_thread = tap_purecloud.websocket_helper.get_historical_adherence(config, result_reference)
 
-    # todo: generate body!
-    # in a for loop!
-    body = PureCloudPlatformClientV2.WfmHistoricalAdherenceQuery()
-    body.start_date='2018-03-09T00:00:00.000Z'
-    body.end_date='2018-03-10T00:00:00.000Z'
-    body.user_ids=users
-    body.include_exceptions=True
-    body.time_zone="UTC"
-
     # give the webhook a chance to get settled
-    time.sleep(5)
+    logger.info("Waiting for websocket to settle")
+    time.sleep(3)
 
+    logger.info("POSTING adherence request")
     api_instance = PureCloudPlatformClientV2.WorkforceManagementApi()
     wfm_response = api_instance.post_workforcemanagement_managementunit_historicaladherencequery(
             unit_id, body=body)
 
-    logger.info(wfm_response)
-
+    logger.info("Waiting for notification")
     wfm_notifcation_thread.join()
 
     url = result_reference['downloadUrl']
     response = requests.get(url).json()
-    return response['data']
+    yield response['data']
 
 
-def handle_adherence(*args, **kwargs):
-    import ipdb; ipdb.set_trace()
-    pass
+def handle_adherence(unit_id):
+    def handle(record):
+        record['management_unit_id'] = unit_id
+        return record
+    return handle
 
+def get_user_unit_mapping(users):
+    unit_users = collections.defaultdict(list)
+    for item in users:
+        user_id = item['user_id']
+        management_unit_id = item['management_unit_id']
+        unit_users[management_unit_id].append(user_id)
+    return unit_users
+
+
+def sync_historical_adherence(config, unit_id, users, first_page):
+
+    sync_date = config['start_date']
+    end_date = datetime.date.today()
+    incr = datetime.timedelta(days=1)
+
+    while sync_date < end_date:
+        logger.info("Syncing for {}".format(sync_date))
+        next_date = sync_date + incr
+
+        start_date_s = sync_date.strftime('%Y-%m-%dT00:00:00.000Z')
+        end_date_s = next_date.strftime('%Y-%m-%dT00:00:00.000Z')
+
+        body = PureCloudPlatformClientV2.WfmHistoricalAdherenceQuery()
+        body.start_date = start_date_s
+        body.end_date = end_date_s
+        body.user_ids = users
+        body.include_exceptions = True
+        body.time_zone = "UTC"
+
+        gen_adherence = sync_wfm_historical_adherence(config, unit_id, users, body)
+        stream_results(gen_adherence, handle_adherence(unit_id), 'historical_adherence', schemas.historical_adherence, ['user_id', 'management_unit_id', 'startDate'], first_page)
+
+        sync_date = next_date
+        first_page = False
 
 def sync_management_units(config):
     logger.info("Fetching management units")
@@ -406,16 +435,8 @@ def sync_management_units(config):
         # user_ids = [user['user_id'] for user in users]
         # sync_user_schedules(config, unit_id, user_ids, first_page)
 
-        import collections
-        unit_users = collections.defaultdict(list)
-        for item in users:
-            user_id = item['user_id']
-            management_unit_id = item['management_unit_id']
-            unit_users[management_unit_id].append(user_id)
-
-        gen_adherence = sync_wfm_historical_adherence(config, unit_id, unit_users[unit_id])
-        users = stream_results(gen_adherence, handle_adherence(unit_id), 'historical_adherence', schemas.historical_adherence, ['user_id', 'management_unit_id'], first_page)
-
+        unit_users = get_user_unit_mapping(users)
+        sync_historical_adherence(config, unit_id, unit_users[unit_id], first_page)
 
 
 def handle_conversation(conversation_record):

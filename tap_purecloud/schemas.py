@@ -1,3 +1,67 @@
+historical_adherence = {
+    'type': 'object',
+    'properties': {
+        "userId": {
+            "type": ["null", "string"]
+        },
+        "startDate": {
+            "type": ["null", "string"],
+            "format": "date-time"
+        },
+        "endDate": {
+            "type": ["null", "string"],
+            "format": "date-time"
+        },
+        "impact": {
+            "type": ["null", "string"]
+        },
+        "exceptionInfo": {
+            "type": ["null", "array"],
+            "items": {
+                "type": ["object", "null"]
+            }
+        },
+        "management_unit_id": {
+            "type": ["null", "string"]
+        },
+        "dayMetrics": {
+            "type": ["null", "array"],
+            "items": {
+                "type": ["null", "object"],
+                "properties": {
+                    "dayStartOffsetSecs": {
+                        "type": ["null", "number"]
+                    },
+                    "adherenceScheduleSecs": {
+                        "type": ["null", "number"]
+                    },
+                    "conformanceScheduleSecs": {
+                        "type": ["null", "number"]
+                    },
+                    "conformanceActualSecs": {
+                        "type": ["null", "number"]
+                    },
+                    "exceptionCount": {
+                        "type": ["null", "number"]
+                    },
+                    "exceptionDurationSecs": {
+                        "type": ["null", "number"]
+                    },
+                    "impactSeconds": {
+                        "type": ["null", "number"]
+                    },
+                    "scheduleLengthSecs": {
+                        "type": ["null", "number"]
+                    },
+                    "actualLengthSecs": {
+                        "type": ["null", "number"]
+                    }
+                }
+            }
+        }
+    }
+}
+
 user = {
     'type': 'object',
     'properties': {
