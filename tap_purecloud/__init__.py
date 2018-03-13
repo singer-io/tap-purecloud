@@ -667,13 +667,13 @@ def do_sync(args):
     PureCloudPlatformClientV2.configuration.host = api_host
     PureCloudPlatformClientV2.configuration.access_token = access_token
 
-    sync_management_units(config)
     sync_users(config)
     sync_groups(config)
     sync_locations(config)
     sync_presence_definitions(config)
     sync_queues(config)
 
+    sync_management_units(config)
     sync_conversations(config)
     sync_user_details(config)
 
