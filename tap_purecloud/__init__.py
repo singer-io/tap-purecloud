@@ -389,7 +389,7 @@ def sync_historical_adherence(config, unit_id, users, first_page):
     incr = datetime.timedelta(days=1)
 
     while sync_date < end_date:
-        logger.info("Syncing for {}".format(sync_date))
+        logger.info("Syncing historical adherence for {}".format(sync_date))
         next_date = sync_date + incr
 
         start_date_s = sync_date.strftime('%Y-%m-%dT00:00:00.000Z')
@@ -419,6 +419,7 @@ def sync_management_units(config):
     mgmt_units = stream_results(gen_units, lambda x: x, 'management_unit', schemas.management_unit, ['id'], True)
 
     for i, unit in enumerate(mgmt_units):
+        logger.info("Syncing mgmt unit {} of {}".format(i + 1, len(mgmt_units)))
         first_page = (i == 0)
         unit_id = unit['id']
 
