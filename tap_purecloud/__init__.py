@@ -12,9 +12,12 @@ import backoff
 import hashlib
 
 import PureCloudPlatformApiSdk
+import PureCloudPlatformClientV2
 from PureCloudPlatformApiSdk.rest import ApiException
 
 import tap_purecloud.schemas as schemas
+import tap_purecloud.websocket_helper
+import time
 
 
 logger = singer.get_logger()
@@ -340,6 +343,42 @@ def sync_user_schedules(config, unit_id, user_ids, first_page):
         sync_date = next_date
         first_page = False
 
+
+def sync_wfm_historical_adherence(config, unit_id, users):
+    # The ol' Python pass-by-reference
+    result_reference = {}
+    wfm_notifcation_thread = tap_purecloud.websocket_helper.get_historical_adherence(config, result_reference)
+
+    # todo: generate body!
+    # in a for loop!
+    body = PureCloudPlatformClientV2.WfmHistoricalAdherenceQuery()
+    body.start_date='2018-03-09T00:00:00.000Z'
+    body.end_date='2018-03-10T00:00:00.000Z'
+    body.user_ids=users
+    body.include_exceptions=True
+    body.time_zone="UTC"
+
+    # give the webhook a chance to get settled
+    time.sleep(5)
+
+    api_instance = PureCloudPlatformClientV2.WorkforceManagementApi()
+    wfm_response = api_instance.post_workforcemanagement_managementunit_historicaladherencequery(
+            unit_id, body=body)
+
+    logger.info(wfm_response)
+
+    wfm_notifcation_thread.join()
+
+    url = result_reference['downloadUrl']
+    response = requests.get(url).json()
+    return response['data']
+
+
+def handle_adherence(*args, **kwargs):
+    import ipdb; ipdb.set_trace()
+    pass
+
+
 def sync_management_units(config):
     logger.info("Fetching management units")
     api_instance = PureCloudPlatformApiSdk.WorkforceManagementApi()
@@ -364,8 +403,19 @@ def sync_management_units(config):
         gen_users = fetch_all_records(getter, 'entities', FakeBody(), max_pages=1)
         users = stream_results(gen_users, handle_mgmt_users(unit_id), 'management_unit_users', schemas.management_unit_users, ['user_id', 'management_unit_id'], first_page)
 
-        user_ids = [user['user_id'] for user in users]
-        sync_user_schedules(config, unit_id, user_ids, first_page)
+        # user_ids = [user['user_id'] for user in users]
+        # sync_user_schedules(config, unit_id, user_ids, first_page)
+
+        import collections
+        unit_users = collections.defaultdict(list)
+        for item in users:
+            user_id = item['user_id']
+            management_unit_id = item['management_unit_id']
+            unit_users[management_unit_id].append(user_id)
+
+        gen_adherence = sync_wfm_historical_adherence(config, unit_id, unit_users[unit_id])
+        users = stream_results(gen_adherence, handle_adherence(unit_id), 'historical_adherence', schemas.historical_adherence, ['user_id', 'management_unit_id'], first_page)
+
 
 
 def handle_conversation(conversation_record):
@@ -592,13 +642,16 @@ def do_sync(args):
     PureCloudPlatformApiSdk.configuration.host = api_host
     PureCloudPlatformApiSdk.configuration.access_token = access_token
 
+    PureCloudPlatformClientV2.configuration.host = api_host
+    PureCloudPlatformClientV2.configuration.access_token = access_token
+
+    sync_management_units(config)
     sync_users(config)
     sync_groups(config)
     sync_locations(config)
     sync_presence_definitions(config)
     sync_queues(config)
 
-    sync_management_units(config)
     sync_conversations(config)
     sync_user_details(config)
 
