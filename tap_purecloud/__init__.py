@@ -391,7 +391,7 @@ def sync_historical_adherence(config, unit_id, users, first_page):
 
     sync_date = sync_date - incr
 
-    while sync_date <= end_date:
+    while sync_date < end_date:
         logger.info("Syncing historical adherence for {}".format(sync_date))
         next_date = sync_date + incr
 
