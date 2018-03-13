@@ -370,7 +370,7 @@ def sync_wfm_historical_adherence(config, unit_id, users, body):
 def handle_adherence(unit_id):
     def handle(record):
         record['management_unit_id'] = unit_id
-        return record
+        return parse_dates(record)
     return handle
 
 def get_user_unit_mapping(users):
@@ -403,7 +403,7 @@ def sync_historical_adherence(config, unit_id, users, first_page):
         body.time_zone = "UTC"
 
         gen_adherence = sync_wfm_historical_adherence(config, unit_id, users, body)
-        stream_results(gen_adherence, handle_adherence(unit_id), 'historical_adherence', schemas.historical_adherence, ['user_id', 'management_unit_id', 'startDate'], first_page)
+        stream_results(gen_adherence, handle_adherence(unit_id), 'historical_adherence', schemas.historical_adherence, ['userId', 'management_unit_id', 'startDate'], first_page)
 
         sync_date = next_date
         first_page = False
