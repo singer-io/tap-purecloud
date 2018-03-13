@@ -385,10 +385,11 @@ def get_user_unit_mapping(users):
 def sync_historical_adherence(config, unit_id, users, first_page):
 
     sync_date = config['start_date']
-    sync_date = sync_date - incr
 
     end_date = datetime.date.today()
     incr = datetime.timedelta(days=1)
+
+    sync_date = sync_date - incr
 
     while sync_date <= end_date:
         logger.info("Syncing historical adherence for {}".format(sync_date))
