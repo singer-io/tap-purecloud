@@ -432,8 +432,8 @@ def sync_management_units(config):
         gen_users = fetch_all_records(getter, 'entities', FakeBody(), max_pages=1)
         users = stream_results(gen_users, handle_mgmt_users(unit_id), 'management_unit_users', schemas.management_unit_users, ['user_id', 'management_unit_id'], first_page)
 
-        # user_ids = [user['user_id'] for user in users]
-        # sync_user_schedules(config, unit_id, user_ids, first_page)
+        user_ids = [user['user_id'] for user in users]
+        sync_user_schedules(config, unit_id, user_ids, first_page)
 
         unit_users = get_user_unit_mapping(users)
         sync_historical_adherence(config, unit_id, unit_users[unit_id], first_page)
