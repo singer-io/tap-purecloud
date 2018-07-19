@@ -1,4 +1,4 @@
-# tap-taboola
+# tap-purecloud
 
 Author: Drew Banin (drew@fishtownanalytics.com)
 
