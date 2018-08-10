@@ -62,4 +62,4 @@ The output of `tap-purecloud ...` can be piped to `target-stitch` to load the da
 
 ---
 
-Copyright &copy; 2017 Fishtown Analytics
+Copyright &copy; 2018 Stitch
