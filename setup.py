@@ -17,7 +17,7 @@ setup(name='tap-purecloud',
           'python-dateutil==2.6.0',
           'PureCloudPlatformApiSdk==0.45.1.101',
           'PureCloudPlatformClientV2==26.0.0',
-          'websockets==4.0.1'
+          'websockets==5.0.1'
       ],
       entry_points='''
           [console_scripts]
