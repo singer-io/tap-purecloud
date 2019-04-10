@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 import os.path
 
 setup(name='tap-purecloud',
-      version='0.0.2',
+      version='0.0.6',
       description='Singer.io tap for extracting data from the Genesys Purecloud API',
       author='Fishtown Analytics',
       url='http://fishtownanalytics.com',
